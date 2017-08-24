@@ -1,0 +1,14 @@
+net: "/root/maxmon/lr/pb/train_val.prototxt"
+test_iter: 250 # 一次测试250个batch
+test_interval: 1000 # 每训练1000个iter测试一侧
+base_lr: 0.01 # 梯度下降基础步长
+display: 1000 # 每1000迭代显示一次当前的成绩
+max_iter: 10000 # 最大多少个iter
+lr_policy: "step" # 梯度下降学习速率改变方式
+gamma: 0.1 # 配合lr_policy: "step"的参数
+momentum: 0.9 # 梯度下降学习速率动量因子
+weight_decay: 0.0005 # 权重衰减因子
+stepsize: 5000 # 配合lr_policy: "step"的参数
+snapshot: 10000 # 每10000次迭代保存训练结果
+snapshot_prefix: "/root/maxmon/lr/gen/snapshot_train" # 训练结果保存地址
+solver_mode: CPU

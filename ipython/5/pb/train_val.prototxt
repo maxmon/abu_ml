@@ -1,0 +1,103 @@
+name: "MLP"
+layer {
+  name: "data" 
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN # 训练数据层
+  }
+  transform_param {
+    scale: 0.00392156862745 # 归一化缩小
+  }
+  data_param {
+    source: "/root/maxmon/lr/gen/train_lmdb" # 训练集地址
+    batch_size: 40 # batch样本数量
+    backend: LMDB
+  }
+}
+layer {
+  name: "data" # 测试数据层
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    scale: 0.00392156862745 # 归一化缩小
+  }
+  data_param {
+    source: "/root/maxmon/lr/gen/test_lmdb" # 测试集地址
+    batch_size: 40 # batch样本数量
+    backend: LMDB
+  }
+}
+layer {
+  name: "ip1" # 512 DNN全连接层（隐层）
+  type: "InnerProduct"
+  bottom: "data"
+  top: "ip1"
+  inner_product_param {
+    num_output: 512
+    weight_filler {
+      type: "xavier" # weight初始化方式
+    }
+  }
+}
+layer {
+  name: "act1" # relu层
+  type: "ReLU"
+  bottom: "ip1"
+  top: "ip1"
+}
+layer {
+  name: "drop1" # dropout层
+  type: "Dropout"
+  bottom: "ip1"
+  top: "ip1"
+  dropout_param {
+    dropout_ratio: 0.2 # 丢弃比例
+  }
+}
+layer {
+  name: "ip2" # DNN输出层
+  type: "InnerProduct"
+  bottom: "ip1"
+  top: "ip2"
+  inner_product_param {
+    num_output: 10 # 输出10个类别
+    weight_filler {
+      type: "xavier" # weight初始化方式
+    }
+  }
+}
+layer {
+  name: "act2" # relu层
+  type: "ReLU"
+  bottom: "ip2"
+  top: "ip2"
+}
+layer {
+  name: "drop2" # dropout层
+  type: "Dropout"
+  bottom: "ip2"
+  top: "ip2"
+  dropout_param {
+    dropout_ratio: 0.2
+  }
+}
+layer {
+  name: "accuracy" # 计算准确率
+  type: "Accuracy"
+  bottom: "ip2"
+  bottom: "label"
+  top: "accuracy"
+}
+layer {
+  name: "loss" # softmax层+loss损失函数计算层
+  type: "SoftmaxWithLoss"
+  bottom: "ip2"
+  bottom: "label"
+  top: "loss"
+}

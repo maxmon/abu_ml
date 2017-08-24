@@ -1,0 +1,61 @@
+name: "LogistRegression"
+layer {
+  name: "data" # 数据层
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN # 标识，这个数据层用于训练集
+  }
+  transform_param {
+    scale: 0.00392156862745 # 归一化缩小
+  }
+  data_param {
+    source: "/root/maxmon/lr/gen/train_lmdb" # 训练集地址
+    batch_size: 64 # batch样本数目
+    backend: LMDB
+  }
+}
+layer {
+  name: "data" 
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST # 测试数据层
+  }
+  transform_param {
+    scale: 0.00392156862745 # 归一化缩小
+  }
+  data_param {
+    source: "/root/maxmon/lr/gen/test_lmdb" # 测试集地址
+    batch_size: 64 # batch样本数目
+    backend: LMDB
+  }
+}
+layer {
+  name: "ip1" # DNN输出层
+  type: "InnerProduct"
+  bottom: "data"
+  top: "ip1"
+  inner_product_param {
+    num_output: 10 # 输出10个类别
+    weight_filler {
+      type: "xavier" # weight初始化方式
+    }
+  }
+}
+layer {
+  name: "accuracy" # 准确率计算曾
+  type: "Accuracy"
+  bottom: "ip1"
+  bottom: "label"
+  top: "accuracy"
+}
+layer {
+  name: "loss" # softmax+loss损失函数计算曾
+  type: "SoftmaxWithLoss"
+  bottom: "ip1"
+  bottom: "label"
+  top: "loss"
+}
